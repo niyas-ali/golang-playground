@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
 
 var (
@@ -45,6 +46,11 @@ func (w *APIServer) init() {
 	http.HandleFunc("/format", w.FormatHandler)
 }
 func (w *APIServer) Start() {
+	port = os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
 	log.Println("Server started and listening on", port)
 	log.Fatal(http.ListenAndServe(port, nil))
 }
