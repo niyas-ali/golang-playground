@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>golang-playground</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <script src="https://pagecdn.io/lib/ace/1.4.13/ace.js" crossorigin="anonymous" integrity="sha256-bS3VAQePcKYmsvI+8BdG2QJAVb9FbiZLgM5vK2/+TcM=" ></script>
+    <script src="https://pagecdn.io/lib/ace/1.4.13/mode-golang.js" crossorigin="anonymous"  ></script>
+</head>
+
+<body class="h-full bg-white font-mono">
+    <div class="bg-indigo-600">
+        <div class="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="w-0 flex-1 flex items-center">
+                    <span class="flex p-2 rounded-lg bg-indigo-800">
+                        <img class="h-6 w-9 text-white" src="https://go.dev/images/go-logo-white.svg" />
+                    </span>
+                    <p class="ml-3 font-medium text-white truncate">
+                        <span class="md:inline">
+                            golang-playground
+                        </span>
+                    </p>
+                </div>
+                <div class="order-3 mt-2 flex-shrink-0 w-full sm:order-2 sm:mt-0 sm:w-auto mr-2">
+                    <a href="#" onclick="compile()"
+                        class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50">
+                        Run
+                    </a>
+                </div>
+                <div class="order-3 mt-2 flex-shrink-0 w-full sm:order-2 sm:mt-0 sm:w-auto">
+                    <a href="#" onclick="format()"
+                        class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50">
+                        Format
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <main class="h-full">
+    <div  class="min-w-full h-2/4 bg-gray shadow-xl ring-1 ring-gray-900/5 sm:rounded-lg border-none">
+        <textarea class="h-96 outline-0 min-w-full p-3" id="code_editor" ></textarea>
+    </div>
+    <div class="min-w-full bg-gray shadow-xl ring-1 ring-gray-900/5 sm:rounded-lg" >
+         <textarea class="h-64 outline-0 min-w-full p-3 bg-gray-200 " id="output_panel" readonly></textarea>
+</div>  </div>
+</main>
+    <script>
+        function compile(){
+            loading(true);
+            let code = document.getElementById("code_editor").value;
+            fetch('/compile',{method:'POST',body:code})
+                .then(data=>data.text()).then(d=>{
+                    document.getElementById("output_panel").value=d
+                })
+                .catch(function(err){
+                    document.getElementById("output_panel").value=err
+                })
+        }
+        function format(){
+            loading(true);
+            let code = document.getElementById("code_editor").value;
+            fetch('/format',{method:'POST',body:code})
+                .then(data=>data.text()).then(d=>{
+                    document.getElementById("code_editor").value=d
+                })
+                .catch(function(err){
+                }).finally(function(){
+                    loading(false)
+                })
+        }
+        function loading(loading){
+            if (loading){
+            document.getElementById("output_panel").value="waiting for remote server..."
+            } else {
+                document.getElementById("output_panel").value="";
+            }
+        }
+    </script>
+</body>
+</html>
