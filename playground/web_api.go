@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	port string = ":8080"
+	port string = ":80"
 )
 
 type APIServer struct {
