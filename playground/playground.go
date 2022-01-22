@@ -32,14 +32,20 @@ func (p Playground) RunPlayground() (string, error) {
 	p.cmd = exec.Command("go", "run")
 	p.cmd.Dir = p.dir
 	p.cmd.Args = append(p.cmd.Args, mainFile)
-	data, _ := p.cmd.CombinedOutput()
+	data, err := p.cmd.CombinedOutput()
+	if err != nil {
+		log.Println(err)
+	}
 	return string(data), nil
 }
 func (p Playground) FormatSourceCode() (string, error) {
 	p.cmd = exec.Command("gofmt")
 	p.cmd.Dir = p.dir
 	p.cmd.Args = append(p.cmd.Args, mainFile)
-	data, _ := p.cmd.Output()
+	data, err := p.cmd.Output()
+	if err != nil {
+		log.Println(err)
+	}
 	return string(data), nil
 }
 func (p Playground) CopySourceCode(code []byte) {
