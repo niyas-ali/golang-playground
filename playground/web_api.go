@@ -51,8 +51,8 @@ func (w *APIServer) Start() {
 	if port == "" {
 		log.Fatal("$PORT must be set")
 	}
-	log.Println("Server started and listening on", port)
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Println("Server started and listening on:", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 func NewAPIServer() APIServer {
 	api := APIServer{}
