@@ -51,6 +51,18 @@
 </div>  </div>
 </main>
     <script>
+        window.onload = function(){
+            loading(true);
+            let code = document.getElementById("code_editor").value;
+            fetch('/sample',{method:'GET'})
+                .then(data=>data.text()).then(d=>{
+                    document.getElementById("code_editor").value=d
+                })
+                .catch(function(err){
+                }).finally(function(){
+                    loading(false)
+                })
+        }
         function compile(){
             loading(true);
             let code = document.getElementById("code_editor").value;

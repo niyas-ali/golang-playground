@@ -20,7 +20,10 @@ func (w *APIServer) IndexHandler(rw http.ResponseWriter, r *http.Request) {
 	w.sm.Add(r.RemoteAddr)
 	http.ServeFile(rw, r, "./html/index.html")
 }
-
+func (w *APIServer) SampleHandler(rw http.ResponseWriter, r *http.Request) {
+	data, _ := ioutil.ReadFile("./playground/demo_code.txt")
+	fmt.Fprintln(rw, string(data))
+}
 func (w *APIServer) CompileHandler(rw http.ResponseWriter, r *http.Request) {
 	w.sm.Add(r.RemoteAddr)
 	data, _ := ioutil.ReadAll(r.Body)
@@ -42,6 +45,7 @@ func (w *APIServer) CleanupHandler(rw http.ResponseWriter, r *http.Request) {
 }
 func (w *APIServer) init() {
 	http.HandleFunc("/", w.IndexHandler)
+	http.HandleFunc("/sample", w.SampleHandler)
 	http.HandleFunc("/compile", w.CompileHandler)
 	http.HandleFunc("/format", w.FormatHandler)
 }
