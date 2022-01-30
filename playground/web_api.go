@@ -17,7 +17,7 @@ type APIServer struct {
 }
 
 func (w *APIServer) IndexHandler(rw http.ResponseWriter, r *http.Request) {
-	w.sm.Add(r.RemoteAddr)
+	w.sm.Add(r.Host)
 	http.ServeFile(rw, r, "./html/index.html")
 }
 func (w *APIServer) SampleHandler(rw http.ResponseWriter, r *http.Request) {
@@ -25,17 +25,17 @@ func (w *APIServer) SampleHandler(rw http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(rw, string(data))
 }
 func (w *APIServer) CompileHandler(rw http.ResponseWriter, r *http.Request) {
-	w.sm.Add(r.RemoteAddr)
+	w.sm.Add(r.Host)
 	data, _ := ioutil.ReadAll(r.Body)
-	playground, _ := w.sm.GetPlayground(r.RemoteAddr)
+	playground, _ := w.sm.GetPlayground(r.Host)
 	playground.CopySourceCode(data)
 	output, _ := playground.RunPlayground()
 	fmt.Fprintln(rw, output)
 }
 func (w *APIServer) FormatHandler(rw http.ResponseWriter, r *http.Request) {
-	w.sm.Add(r.RemoteAddr)
+	w.sm.Add(r.Host)
 	data, _ := ioutil.ReadAll(r.Body)
-	playground, _ := w.sm.GetPlayground(r.RemoteAddr)
+	playground, _ := w.sm.GetPlayground(r.Host)
 	playground.CopySourceCode(data)
 	output, _ := playground.FormatSourceCode()
 	fmt.Fprintln(rw, output)

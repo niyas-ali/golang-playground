@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -14,6 +15,7 @@ type ServiceManager struct {
 
 func (sm ServiceManager) Add(ip string) {
 	if _, ok := sm.connections[ip]; !ok {
+		ip = strings.Split(ip, ":")[0]
 		log.Printf("%s ip connected", ip)
 		path := fmt.Sprintf("bin/%s", ip)
 		playground := Playground{
