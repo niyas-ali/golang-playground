@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var (
@@ -17,7 +18,6 @@ type APIServer struct {
 }
 
 func (w *APIServer) IndexHandler(rw http.ResponseWriter, r *http.Request) {
-	w.sm.Add(r.RemoteAddr)
 	http.ServeFile(rw, r, "./html/index.html")
 }
 func (w *APIServer) SampleHandler(rw http.ResponseWriter, r *http.Request) {
@@ -25,17 +25,15 @@ func (w *APIServer) SampleHandler(rw http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(rw, string(data))
 }
 func (w *APIServer) CompileHandler(rw http.ResponseWriter, r *http.Request) {
-	w.sm.Add(r.RemoteAddr)
 	data, _ := ioutil.ReadAll(r.Body)
-	playground, _ := w.sm.GetPlayground(r.RemoteAddr)
+	playground, _ := w.sm.GetPlayground(GetIP(r))
 	playground.CopySourceCode(data)
 	output, _ := playground.RunPlayground()
 	fmt.Fprintln(rw, output)
 }
 func (w *APIServer) FormatHandler(rw http.ResponseWriter, r *http.Request) {
-	w.sm.Add(r.RemoteAddr)
 	data, _ := ioutil.ReadAll(r.Body)
-	playground, _ := w.sm.GetPlayground(r.RemoteAddr)
+	playground, _ := w.sm.GetPlayground(GetIP(r))
 	playground.CopySourceCode(data)
 	output, _ := playground.FormatSourceCode()
 	fmt.Fprintln(rw, output)
@@ -43,15 +41,23 @@ func (w *APIServer) FormatHandler(rw http.ResponseWriter, r *http.Request) {
 func (w *APIServer) CleanupHandler(rw http.ResponseWriter, r *http.Request) {
 
 }
+func GetIP(r *http.Request) string {
+	return strings.Split(r.RemoteAddr, ":")[0]
+}
+func (server *APIServer) Handler(next func(w http.ResponseWriter, r *http.Request)) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server.sm.Add(GetIP(r))
+		next(w, r)
+	})
+}
 func (w *APIServer) init() {
-	http.HandleFunc("/", w.IndexHandler)
-	http.HandleFunc("/sample", w.SampleHandler)
-	http.HandleFunc("/compile", w.CompileHandler)
-	http.HandleFunc("/format", w.FormatHandler)
+	http.Handle("/", w.Handler(w.IndexHandler))
+	http.Handle("/sample", w.Handler(w.SampleHandler))
+	http.Handle("/compile", w.Handler(w.CompileHandler))
+	http.Handle("/format", w.Handler(w.FormatHandler))
 }
 func (w *APIServer) Start() {
 	port = os.Getenv("PORT")
-
 	if port == "" {
 		log.Fatal("$PORT must be set")
 	}
